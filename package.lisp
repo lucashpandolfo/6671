@@ -4,5 +4,6 @@
   (:nicknames #:sg)
   (:use #:cl)
   (:export :main
-	   :framework-window))
+	   :framework-window
+	   :draw))
 
