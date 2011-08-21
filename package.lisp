@@ -6,4 +6,3 @@
   (:export :main
 	   :framework-window
 	   :draw))
-

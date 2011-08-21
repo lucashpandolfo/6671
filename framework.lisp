@@ -93,6 +93,7 @@
 
 (defmethod init ((w framework-window))
   (setf (world-rotation w) (make-array 3 ))
+  (setf (eye w) (copy-seq #(15 15 5)))
   (gl:clear-color 0.02 0.02 0.04 0)
   (gl:shade-model :smooth)
   (gl:enable :depth-test)
@@ -124,6 +125,9 @@
   
   (when (view-grid w)
     (draw-xy-grid))
+
+  (gl:enable :color-material)
+
   (handler-case
       (draw w)
     (simple-error () (error "Se debe definir el método (draw ((w framework-window))).~%")))
@@ -155,6 +159,8 @@
 	 (setf (at w) #(0 0 0))
 	 (setf (up w) #(0 0 1)))
     (#\i (init w))
+    (#\- (incf (aref (eye w) 1) 0.2))
+    (#\+ (decf (aref (eye w) 1) 0.2))
     (#\x (incf (aref (world-rotation w) 0) 3))
     (#\X (decf (aref (world-rotation w) 0) 3))
     (#\y (incf (aref (world-rotation w) 1) 3))
