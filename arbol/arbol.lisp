@@ -1,19 +1,9 @@
 (require 'sistemas-graficos)
 
 (defclass ventana-arbol (sg:framework-window)
-  ((edad :initform 4 :accessor edad)))
-
-(defmethod aumentar-edad ((ventana ventana-arbol))
-  (when (< (edad ventana) 6)
-    (incf (edad ventana))))
-
-(defmethod disminuir-edad ((ventana ventana-arbol))
-  (when (> (edad ventana) 0)
-    (decf (edad ventana))))
-
-(defmethod initialize-instance :after ((ventana ventana-arbol) &key)
-  (sg:add-key ventana #\m #'aumentar-edad)
-  (sg:add-key ventana #\M #'disminuir-edad))
+  ((edad :initform 4 :accessor edad)
+   (lista :initform nil :accessor lista)
+   (usar-lista :initform nil :accessor usar-lista)))
 
 (defun rama (ancho largo)
   (gl:color 0.5 0.2 0)
@@ -52,8 +42,36 @@
 	    (gl:rotate (nth (mod (+ i nivel) 5) angulos) 0 1 0)
 	    (arbol (- n 1) (+ nivel 1))))))))
 
-(defmethod sg:draw ((window ventana-arbol))
-  (arbol (edad window)))
+(defmethod toggle-lista ((ventana ventana-arbol))
+  (setf (usar-lista ventana) (not (usar-lista ventana)))
+  (recompilar-lista ventana)
+  (format t "Usra lista compilada: ~a~%" (usar-lista ventana)))
+
+(defmethod recompilar-lista ((ventana ventana-arbol))
+  (gl:with-new-list ((lista ventana) :compile)
+    (arbol (edad ventana))))
+
+(defmethod aumentar-edad ((ventana ventana-arbol))
+  (when (< (edad ventana) 6)
+    (incf (edad ventana))
+    (recompilar-lista ventana)))
+
+(defmethod disminuir-edad ((ventana ventana-arbol))
+  (when (> (edad ventana) 0)
+    (decf (edad ventana))
+    (recompilar-lista ventana)))
+
+(defmethod initialize-instance :after ((ventana ventana-arbol) &key)
+  (sg:add-key ventana #\m #'aumentar-edad)
+  (sg:add-key ventana #\M #'disminuir-edad)
+  (sg:add-key ventana #\l #'toggle-lista))
+
+(defmethod sg:draw ((ventana ventana-arbol))
+  (unless (lista ventana)
+    (setf (lista ventana) (gl:gen-lists 1)))
+  (if (usar-lista ventana)
+	(gl:call-list (lista ventana))
+      (arbol (edad ventana))))
 
 (sg:main (make-instance 'ventana-arbol))
 
