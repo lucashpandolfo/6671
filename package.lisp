@@ -5,4 +5,5 @@
   (:use #:cl)
   (:export :main
 	   :framework-window
-	   :draw))
+	   :draw
+	   :add-key))

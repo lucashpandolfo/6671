@@ -1,7 +1,7 @@
 (in-package #:sistemas-graficos)
 
 (defgeneric draw (window)
-  (:documentation "Método donde se debe incluír el código de usuario para dibujar."))
+  (:documentation "MÃ©todo donde se debe incluÃ­r el cÃ³digo de usuario para dibujar."))
 
 (defclass framework-window (glut:window)
   ((eye :initform #(15 15 5) :accessor eye)
@@ -13,9 +13,40 @@
    (view-grid :initform t :accessor view-grid)
    (view-axis :initform t :accessor view-axis)
    (edit-panel :initform nil :accessor edit-panel)
+   (key-map :initform (make-hash-table :test 'equal) :accessor key-map)
    (world-rotation :initform #(0 0 0) :accessor world-rotation))
   (:default-initargs :pos-x 0 :pos-y 0 :width 1024 :height 768
                      :mode '(:double :rgb :depth) :title "Framework"))
+
+(defmethod initialize-instance :after ((window framework-window) &key)
+  (add-key window #\g #'toggle-grid)
+  (add-key window #\a #'toggle-axis)
+  (add-key window #\e #'toggle-edit-panel)
+  (add-key window #\2 (lambda (w) 
+			(setf (eye w) #(0 0 15))
+			(setf (at w) #(0 0 0))
+			(setf (up w) #(0 1 0))))
+  (add-key window #\3 (lambda (w)
+			(setf (eye w) #(15 15 5))
+			(setf (at w) #(0 0 0))
+			(setf (up w) #(0 0 1))))
+  (add-key window #\i #'init)
+  (add-key window #\- (lambda (w)
+			(incf (aref (eye w) 1) 0.2)))
+  (add-key window #\+ (lambda (w)
+			(decf (aref (eye w) 1) 0.2)))
+  (add-key window #\x (lambda (w)
+			(incf (aref (world-rotation w) 0) 3)))
+  (add-key window #\X (lambda (w)
+			(decf (aref (world-rotation w) 0) 3)))
+  (add-key window #\y (lambda (w) 
+			(incf (aref (world-rotation w) 1) 3)))
+  (add-key window #\Y (lambda (w)
+			(decf (aref (world-rotation w) 1) 3)))
+  (add-key window #\z (lambda (w) 
+			(incf (aref (world-rotation w) 2) 3)))
+  (add-key window #\Z (lambda (w) 
+			(decf (aref (world-rotation w) 2) 3))))
 
 (defmethod toggle-grid ((w framework-window))
   (setf (view-grid w) (not (view-grid w))))
@@ -91,6 +122,12 @@
   (gl:load-identity)
   (glu:ortho-2d -0.1 1.05 -0.1 1.05))
 
+(defmethod get-key ((w framework-window) key)
+  (gethash key (key-map w) #'identity))
+
+(defmethod add-key ((w framework-window) key function)
+  (setf (gethash key (key-map w)) function))
+
 (defmethod init ((w framework-window))
   (setf (world-rotation w) (make-array 3 ))
   (setf (eye w) (copy-seq #(15 15 5)))
@@ -130,7 +167,7 @@
 
   (handler-case
       (draw w)
-    (simple-error () (error "Se debe definir el método (draw ((w framework-window))).~%")))
+    (simple-error () (error "Se debe definir el mÃ©todo (draw ((w framework-window))).~%")))
 
   (when (edit-panel w)
     (set-panel-top-env w)
@@ -145,28 +182,9 @@
     (setf w-width width)
     (setf w-height height)))
 
-
 (defmethod glut:keyboard ((w framework-window) key x y)
   (declare (ignore x y))
-  (case key
-    (#\g (toggle-grid w))
-    (#\a (toggle-axis w))
-    (#\e (toggle-edit-panel w))
-    (#\2 (setf (eye w) #(0 0 15))
-	 (setf (at w) #(0 0 0))
-	 (setf (up w) #(0 1 0)))
-    (#\3 (setf (eye w) #(15 15 5))
-	 (setf (at w) #(0 0 0))
-	 (setf (up w) #(0 0 1)))
-    (#\i (init w))
-    (#\- (incf (aref (eye w) 1) 0.2))
-    (#\+ (decf (aref (eye w) 1) 0.2))
-    (#\x (incf (aref (world-rotation w) 0) 3))
-    (#\X (decf (aref (world-rotation w) 0) 3))
-    (#\y (incf (aref (world-rotation w) 1) 3))
-    (#\Y (decf (aref (world-rotation w) 1) 3))
-    (#\z (incf (aref (world-rotation w) 2) 3))
-    (#\Z (decf (aref (world-rotation w) 2) 3)))
+  (funcall (get-key w key) w)
   (glut:post-redisplay))
 
 (defun main (window)
