@@ -14,6 +14,7 @@
    (view-axis :initform t :accessor view-axis)
    (edit-panel :initform nil :accessor edit-panel)
    (key-map :initform (make-hash-table :test 'equal) :accessor key-map)
+   (grid-list :initform nil :accessor grid-list)
    (world-rotation :initform #(0 0 0) :accessor world-rotation))
   (:default-initargs :pos-x 0 :pos-y 0 :width 1024 :height 768
                      :mode '(:double :rgb :depth) :title "Framework"))
@@ -144,6 +145,11 @@
   (init w))
 
 (defmethod glut:display ((w framework-window))
+  (unless (grid-list w)
+    (setf (grid-list w) (gl:gen-lists 1))
+    (gl:with-new-list ((grid-list w) :compile)
+      (draw-xy-grid)))
+
   (gl:clear :color-buffer-bit :depth-buffer-bit)
 
   (set-3d-env w)
@@ -161,7 +167,7 @@
     (draw-axis))
   
   (when (view-grid w)
-    (draw-xy-grid))
+    (gl:call-list (grid-list w)))
 
   (gl:enable :color-material)
 
