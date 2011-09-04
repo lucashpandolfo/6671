@@ -6,4 +6,10 @@
   (:export :main
 	   :framework-window
 	   :draw
-	   :add-key))
+	   :mouse-button
+	   :mouse-motion
+	   :mouse-passive-motion
+	   :add-key
+	   :cuadrado
+	   :circulo
+	   :cilindro))
