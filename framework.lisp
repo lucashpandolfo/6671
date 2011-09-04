@@ -1,7 +1,44 @@
 (in-package #:sistemas-graficos)
 
 (defgeneric draw (window)
-  (:documentation "Método donde se debe incluír el código de usuario para dibujar."))
+  (:documentation "Método donde se debe incluír el código de usuario
+  para dibujar."))
+
+(defgeneric mouse-button (window button state x y)
+  (:documentation "Método donde se debe incluír el manejo de los
+  botones del mouse."))
+
+(defgeneric mouse-motion (window x y)
+  (:documentation "Método donde se debe incluír el manejo del
+  movimiento del mouse."))
+
+(defgeneric mouse-passive-motion (window x y)
+  (:documentation "Método donde se debe incluír el manejo del
+  movimiento del mouse cuando no hay ningún botón presionado."))
+
+(defgeneric toggle-grid (window)
+  (:documentation ""))
+
+(defgeneric toggle-axis (window)
+  (:documentation ""))
+
+(defgeneric toggle-edit-panel (window)
+  (:documentation ""))
+
+(defmethod set-3d-env (window)
+  (:documentation ""))
+
+(defmethod set-panel-top-env (window)
+  (:documentation ""))
+
+(defmethod get-key (window key)
+  (:documentation ""))
+
+(defmethod add-key (window key function)
+  (:documentation ""))
+
+(defmethod init (window)
+  (:documentation ""))
 
 (defclass framework-window (glut:window)
   ((eye :initform #(15 15 5) :accessor eye)
@@ -18,6 +55,14 @@
    (world-rotation :initform #(0 0 0) :accessor world-rotation))
   (:default-initargs :pos-x 0 :pos-y 0 :width 1024 :height 768
                      :mode '(:double :rgb :depth) :title "Framework"))
+
+(defmethod draw ((window framework-window)))
+
+(defmethod handle-mouse ((window framework-window) button state x y))
+
+(defmethod mouse-motion ((window framework-window) x y))
+
+(defmethod mouse-passive-motion ((window framework-window) x y))
 
 (defmethod initialize-instance :after ((window framework-window) &key)
   (add-key window #\g #'toggle-grid)
@@ -113,6 +158,7 @@
     (gl:load-identity)
     (glu:perspective 60 (/ width height) 0.1 100)))
 
+
 (defmethod set-panel-top-env ((w framework-window))
   (with-accessors ((width glut:width) (height glut:height)) w
     (gl:viewport (* 0.6 width)
@@ -171,10 +217,9 @@
 
   (gl:enable :color-material)
 
-  (handler-case
-      (draw w)
-    (simple-error () (error "Se debe definir el método (draw ((w framework-window))).~%")))
-
+  ;;user must override this method
+  (draw w)
+  
   (when (edit-panel w)
     (set-panel-top-env w)
     (gl:matrix-mode :modelview)
@@ -187,6 +232,15 @@
   (with-accessors ((w-width glut:width) (w-height glut:height)) w
     (setf w-width width)
     (setf w-height height)))
+
+(defmethod glut:mouse ((w framework-window) button state x y)
+  (handle-mouse w button state x y))
+
+(defmethod glut:motion ((w framework-window) x y)
+  (mouse-motion w x y))
+
+(defmethod glut:passive-motion ((w framework-window) x y)
+  (mouse-passive-motion w x y))
 
 (defmethod glut:keyboard ((w framework-window) key x y)
   (declare (ignore x y))
