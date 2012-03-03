@@ -10,6 +10,7 @@
 	   :mouse-motion
 	   :mouse-passive-motion
 	   :add-key
+           :gridded-window
 	   :cuadrado
 	   :circulo
 	   :cilindro))

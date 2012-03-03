@@ -1,6 +1,4 @@
-(require 'sistemas-graficos)
-
-(defclass ventana-arbol (sg:framework-window)
+(defclass ventana-arbol (sg:gridded-window)
   ((edad :initform 4 :accessor edad)
    (lista :initform nil :accessor lista)
    (usar-lista :initform nil :accessor usar-lista)
@@ -145,6 +143,5 @@
 	  (glut:warp-pointer (floor (/ width 2))
 			     (floor (/ height 2)))))))
     
-  
 
-(sg:main (make-instance 'ventana-arbol))
+;;(sg:main (make-instance 'ventana-arbol))

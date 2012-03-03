@@ -6,6 +6,7 @@
                #:cl-glu
                #:cl-glut)
   :components ((:file "package")
-               (:file "framework"  :depends-on ("package"))
-	       (:file "primitivas" :depends-on ("package"))))
+               (:file "framework")
+               (:file "gridded-window")
+	       (:file "primitivas")))
 
