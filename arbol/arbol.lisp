@@ -9,7 +9,7 @@
 (defun rama (ancho largo)
   (gl:color 0.74 0.2 0.1)
   (gl:with-pushed-matrix
-    (gl:translate 0 0 (/ largo 2))
+    (gl:translate 0 0 (/ largo 2.0))
     (glu::cylinder (glu:new-quadric) ancho (* 0.7 ancho) largo 20 1)))
 
 (defun hoja (largo)
@@ -144,4 +144,5 @@
 			     (floor (/ height 2)))))))
     
 
-;;(sg:main (make-instance 'ventana-arbol))
+(defun main ()
+  (sg:main (make-instance 'ventana-arbol)))

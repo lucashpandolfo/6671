@@ -8,5 +8,6 @@
   :components ((:file "package")
                (:file "framework")
                (:file "gridded-window")
-	       (:file "primitivas")))
+	       (:file "primitivas")
+               (:file "arbol/arbol")))
 
